@@ -1,0 +1,25 @@
+{
+	"name": "@bkpecho/bk-bot",
+	"version": "0.0.1",
+	"description": "BK Bot",
+	"license": "MIT",
+	"author": "Bryan King Pecho <pechobk@gmail.com>",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare"
+	},
+	"dependencies": {
+		"@google/generative-ai": "^0.12.0",
+		"nuxt": "^3.11.2",
+		"vue": "^3.4.27",
+		"vue-router": "^4.3.2"
+	},
+	"optionalDependencies": {
+		"@rollup/rollup-linux-x64-gnu": "4.9.5"
+	}
+}
