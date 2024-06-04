@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 	const chat = model.startChat({
 		history: [],
 		generationConfig: {
-			maxOutputTokens: 2000,
+			maxOutputTokens: 100,
 		},
 	});
 
