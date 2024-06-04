@@ -25,6 +25,7 @@
 		"@rollup/rollup-linux-x64-gnu": "4.9.5"
 	},
 	"devDependencies": {
-		"daisyui": "^4.11.1"
+		"daisyui": "^4.11.1",
+		"nuxt-icon": "^0.6.10"
 	}
 }
