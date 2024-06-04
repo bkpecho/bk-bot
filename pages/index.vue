@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from "vue";
 import date from "date-and-time";
+import markdownit from "markdown-it";
+
+const md = markdownit();
 
 // TODO: place this on utils or something
 const getCurrentTime = () => {
@@ -116,7 +119,7 @@ async function sendMessage() {
 								'chat-bubble-secondary': chat.role === 'bot',
 							}"
 						>
-							{{ chat.parts[0].text }}
+							<div v-html="md.render(chat.parts[0].text)" />
 						</div>
 						<!-- Chat Footer -->
 						<div className="chat-footer opacity-50">
