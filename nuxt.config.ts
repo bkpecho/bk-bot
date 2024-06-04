@@ -4,6 +4,6 @@ export default defineNuxtConfig({
 		api_key: process.env.NUXT_API_KEY,
 	},
 
-	devtools: { enabled: true },
+	devtools: { enabled: false },
 	modules: ["@nuxtjs/tailwindcss", "nuxt-icon"],
 });
