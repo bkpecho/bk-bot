@@ -30,6 +30,9 @@ async function sendMessage() {
 	try {
 		isLoading.value = true;
 
+		const input = userInput.value;
+		userInput.value = "";
+
 		setTimeout(() => {
 			chatHistory.value.push({
 				role: "bot",
@@ -38,12 +41,10 @@ async function sendMessage() {
 			});
 		}, 1000);
 
-		response = await $fetch(`/api/chat?text=${encodeURIComponent(userInput.value)}`, {
+		response = await $fetch(`/api/chat?text=${encodeURIComponent(input)}`, {
 			method: "POST",
 			body: userMessage.value,
 		});
-
-		userInput.value = "";
 	} catch (error) {
 		console.log(error);
 	} finally {
