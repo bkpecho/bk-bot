@@ -7,7 +7,6 @@ const chatHistory = ref([]);
 
 async function sendMessage() {
 	if (userInput.value.trim() === "") return;
-	// history.value.push({ role: "user", text: userInput.value });
 
 	userMessage.value = {
 		role: "user",
@@ -27,7 +26,6 @@ async function sendMessage() {
 	});
 
 	userInput.value = "";
-	// messages.value.push({ role: "bot", text: response.data.text });
 }
 </script>
 
