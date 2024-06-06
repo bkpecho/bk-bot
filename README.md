@@ -9,29 +9,29 @@ BK Bot is a conversational AI interface powered by Google's advanced language mo
 
 ## Features
 
-* **Natural Language Understanding:**  Understands and responds to user queries conversationally.
-* **Contextual Awareness:**  Maintains context throughout the conversation for more meaningful interactions.
-* **Google AI Integration:** Leverages the power of Google's state-of-the-art AI technology.
+-   **Natural Language Understanding:** Understands and responds to user queries conversationally.
+-   **Contextual Awareness:** Maintains context throughout the conversation for more meaningful interactions.
+-   **Google AI Integration:** Leverages the power of Google's state-of-the-art AI technology.
 
 ## Local Development
 
 1. **Prerequisites:** Node.js (v18+) and npm.
-2. **Clone:** `git clone https://github.com/your-username/your-repo-name.git`
+2. **Clone:** `git clone https://github.com/bkpecho/bk-bot.git`
 3. **Install:** `npm install`
 4. **Environment:**
-   * Create `.env`: `NUXT_API_KEY=YOUR_GOOGLE_AI_API_KEY` (Obtain from [https://aistudio.google.com/app/u/1/apikey](https://aistudio.google.com/app/u/1/apikey))
+    - Create `.env`: `NUXT_API_KEY=YOUR_GOOGLE_AI_API_KEY` (Obtain GOOGLE API key [here](https://aistudio.google.com/app/u/1/apikey))
 5. **Run:** `npm run dev`
-   * Access at: `http://localhost:3000`
+    - Access at: `http://localhost:3000`
 
 ## Future Enhancements
 
-* Integration of additional Google AI features.
-* Exploration of other AI models and capabilities.
+-   Integration of additional Google AI features.
+-   Exploration of other AI models and capabilities.
 
 ## Tech Stack
 
-* **Frontend:** Nuxt.js, Tailwind CSS, DaisyUI
-* **AI:** Google AI Multi-Turn Conversations
+-   **Frontend:** Nuxt.js, Tailwind CSS, DaisyUI
+-   **AI:** Google AI Multi-Turn Conversations
 
 ## License
 

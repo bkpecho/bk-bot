@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	content: [],
-	theme: {
-		extend: {},
-	},
-	plugins: [require("daisyui")],
+  content: [],
+  theme: {
+    extend: {},
+  },
+  plugins: [require("daisyui")],
 };
