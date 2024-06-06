@@ -1,11 +1,15 @@
 <template>
-  <div class="navbar bg-white z-10 rounded-b-lg">
+  <div class="z-10 bg-white rounded-b-lg navbar">
     <div class="flex-1">
-      <a class="btn btn-ghost text-xl">🤖 bk_bot</a>
+      <a class="text-xl btn btn-ghost">🤖 bk_bot</a>
     </div>
     <div class="flex-none">
       <div>
-        <NuxtLink to="https://github.com/bkpecho/bk-bot" target="_blank">
+        <NuxtLink
+          to="https://github.com/bkpecho/bk-bot"
+          aria-label="Github"
+          target="_blank"
+        >
           <Icon name="mdi:github" class="btn btn-ghost btn-circle avatar" />
         </NuxtLink>
       </div>
