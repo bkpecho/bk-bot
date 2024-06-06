@@ -1,7 +1,9 @@
 <template>
   <div class="z-10 bg-white rounded-b-lg navbar">
     <div class="flex-1">
-      <a class="text-xl btn btn-ghost">🤖 bk_bot</a>
+      <NuxtLink to="/">
+        <a class="text-xl btn btn-ghost">🤖 bk_bot</a>
+      </NuxtLink>
     </div>
     <div class="flex-none">
       <div>
