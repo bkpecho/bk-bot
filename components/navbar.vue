@@ -18,9 +18,11 @@
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full">
-            <img
+            <NuxtImg
               alt="Bryan King Pecho's Avatar"
               src="https://avatars.githubusercontent.com/u/91954699?v=4"
+              width="40"
+              height="40"
             />
           </div>
         </div>
