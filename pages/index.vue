@@ -85,7 +85,7 @@ async function sendMessage() {
             <p>Type Something...</p>
           </div>
           <div
-            v-for="chat in chatHistory"
+            v-for="(chat, index) in chatHistory"
             :key="chat.id"
             :class="{
               'chat-end': chat.role === 'user',
@@ -127,7 +127,9 @@ async function sendMessage() {
               {{
                 chat.role === "user"
                   ? `Sent ${chat.date}`
-                  : chat.role === "bot" && isLoading === true
+                  : chat.role === "bot" &&
+                      chatHistory.length - 1 === index &&
+                      isLoading === true
                     ? `Typing...`
                     : `Received ${chat.date}`
               }}
