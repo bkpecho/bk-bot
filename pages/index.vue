@@ -62,7 +62,7 @@ async function sendMessage() {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   } finally {
     store.messageReceived(response, getCurrentTime());
 
