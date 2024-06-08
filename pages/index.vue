@@ -15,6 +15,7 @@ const getCurrentTime = () => {
 };
 
 const userInput = ref("");
+const focusInput = ref(null);
 const userMessage = ref({});
 const botMessage = ref({});
 const isLoading = ref(false);
@@ -66,11 +67,10 @@ async function sendMessage() {
     store.messageReceived(`${error}`, getCurrentTime());
   } finally {
     store.messageReceived(response, getCurrentTime());
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    }, 500);
 
     isLoading.value = false;
+    await nextTick();
+    focusInput.value.focus();
   }
 }
 </script>
@@ -141,11 +141,13 @@ async function sendMessage() {
         </div>
         <div class="sticky flex justify-center bottom-10">
           <input
+            ref="focusInput"
             v-model="userInput"
             type="text"
             placeholder="Aa"
             class="w-full max-w-xs mr-2 input input-bordered input-primary"
             :disabled="isLoading"
+            :autofocus="!isLoading"
             @keydown.enter="sendMessage"
           />
           <button class="btn btn-primary" @click="sendMessage">
