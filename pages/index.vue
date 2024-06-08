@@ -141,6 +141,7 @@ async function sendMessage() {
             type="text"
             placeholder="Aa"
             class="w-full max-w-xs mr-2 input input-bordered input-primary"
+            :disabled="isLoading"
             @keydown.enter="sendMessage"
           />
           <button class="btn btn-primary" @click="sendMessage">
