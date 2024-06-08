@@ -2,7 +2,9 @@
 import { ref } from "vue";
 import date from "date-and-time";
 import markdownit from "markdown-it";
+import { useChatStore } from "~/stores/useChatStore";
 
+const store = useChatStore();
 const md = markdownit();
 
 // TODO: place this on utils or something
@@ -14,8 +16,9 @@ const getCurrentTime = () => {
 
 const userInput = ref("");
 const userMessage = ref({});
-const chatHistory = ref([]);
+const botMessage = ref({});
 const isLoading = ref(false);
+const chatHistory = store.chatHistory;
 
 async function sendMessage() {
   if (userInput.value.trim() === "") return;
@@ -26,7 +29,7 @@ async function sendMessage() {
     date: getCurrentTime(),
   };
 
-  chatHistory.value.push(userMessage.value);
+  store.saveChatHistory(userMessage.value);
 
   let response = "";
 
@@ -40,35 +43,31 @@ async function sendMessage() {
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }, 500);
 
+    // show bot typing indicator
+    botMessage.value = {
+      role: "model",
+      parts: [{ text: "replying" }],
+      date: getCurrentTime(),
+    };
+
     setTimeout(() => {
-      chatHistory.value.push({
-        role: "bot",
-        parts: [{ text: "replying" }],
-        date: getCurrentTime(),
-      });
+      store.saveChatHistory(botMessage.value);
     }, 1000);
 
-    response = await $fetch(`/api/chat?text=${encodeURIComponent(input)}`, {
+    response = await $fetch(`/api/chat`, {
       method: "POST",
-      body: userMessage.value,
+      body: {
+        text: input,
+        history: store.getHistoryOnly,
+      },
     });
   } catch (error) {
     console.log(error);
   } finally {
-    chatHistory.value.pop({
-      role: "bot",
-      parts: [{ text: response }],
-      date: getCurrentTime(),
-    });
+    store.messageReceived(response);
 
     isLoading.value = false;
   }
-
-  chatHistory.value.push({
-    role: "bot",
-    parts: [{ text: response }],
-    date: getCurrentTime(),
-  });
 }
 </script>
 
@@ -89,7 +88,7 @@ async function sendMessage() {
             :key="chat.id"
             :class="{
               'chat-end': chat.role === 'user',
-              'chat-start': chat.role === 'bot',
+              'chat-start': chat.role === 'model',
             }"
             class="chat"
           >
@@ -116,7 +115,7 @@ async function sendMessage() {
               class="chat-bubble text-l"
               :class="{
                 'chat-bubble-primary': chat.role === 'user',
-                'chat-bubble-secondary': chat.role === 'bot',
+                'chat-bubble-secondary': chat.role === 'model',
               }"
             >
               <!-- eslint-disable vue/no-v-html -->
@@ -127,7 +126,7 @@ async function sendMessage() {
               {{
                 chat.role === "user"
                   ? `Sent ${chat.date}`
-                  : chat.role === "bot" &&
+                  : chat.role === "model" &&
                       chatHistory.length - 1 === index &&
                       isLoading === true
                     ? `Typing...`
