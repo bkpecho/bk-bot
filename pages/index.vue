@@ -52,7 +52,7 @@ async function sendMessage() {
 
     setTimeout(() => {
       store.saveChatHistory(botMessage.value);
-    }, 1000);
+    }, 500);
 
     response = await $fetch(`/api/chat`, {
       method: "POST",
@@ -62,9 +62,13 @@ async function sendMessage() {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    store.messageReceived(`${error}`, getCurrentTime());
   } finally {
-    store.messageReceived(response);
+    store.messageReceived(response, getCurrentTime());
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }, 500);
 
     isLoading.value = false;
   }
@@ -141,10 +145,11 @@ async function sendMessage() {
             type="text"
             placeholder="Aa"
             class="w-full max-w-xs mr-2 input input-bordered input-primary"
+            :disabled="isLoading"
             @keydown.enter="sendMessage"
           />
-          <button class="btn" @click="sendMessage">
-            <Icon name="mdi:send" color="purple" />
+          <button class="btn btn-primary" @click="sendMessage">
+            <Icon name="mdi:send" />
             Send
           </button>
         </div>

@@ -15,10 +15,11 @@ export const useChatStore = defineStore({
     saveChatHistory(chat: ChatHistory) {
       this.chatHistory.push(chat);
     },
-    messageReceived(response: string) {
+    messageReceived(response: string, currentDate: string) {
       if (this.chatHistory.length > 0) {
         const lastIndex = this.chatHistory.length - 1;
         this.chatHistory[lastIndex].parts[0].text = response;
+        this.chatHistory[lastIndex].date = currentDate;
       }
     },
   },
