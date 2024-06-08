@@ -52,7 +52,7 @@ async function sendMessage() {
 
     setTimeout(() => {
       store.saveChatHistory(botMessage.value);
-    }, 1000);
+    }, 500);
 
     response = await $fetch(`/api/chat`, {
       method: "POST",
@@ -64,7 +64,7 @@ async function sendMessage() {
   } catch (error) {
     console.log(error);
   } finally {
-    store.messageReceived(response);
+    store.messageReceived(response, getCurrentTime());
 
     isLoading.value = false;
   }
