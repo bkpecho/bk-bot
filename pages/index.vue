@@ -63,8 +63,12 @@ async function sendMessage() {
     });
   } catch (error) {
     console.error(error);
+    store.messageReceived(`${error}`, getCurrentTime());
   } finally {
     store.messageReceived(response, getCurrentTime());
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }, 500);
 
     isLoading.value = false;
   }
