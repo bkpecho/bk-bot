@@ -143,8 +143,8 @@ async function sendMessage() {
             class="w-full max-w-xs mr-2 input input-bordered input-primary"
             @keydown.enter="sendMessage"
           />
-          <button class="btn" @click="sendMessage">
-            <Icon name="mdi:send" color="purple" />
+          <button class="btn btn-primary" @click="sendMessage">
+            <Icon name="mdi:send" />
             Send
           </button>
         </div>
