@@ -98,19 +98,19 @@ async function sendMessage() {
           >
             <div className="chat-image avatar">
               <div className="w-10 rounded-full">
-                <img
+                <NuxtImg
                   :alt="chat.role"
                   :src="
                     chat.role === 'user'
-                      ? 'https://scontent.fpag2-1.fna.fbcdn.net/v/t39.30808-6/344338913_1324229128155706_1621357508965055437_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGiXsPbzWFbxbfLZJ6SHTfBBnrjjdbTwpAGeuON1tPCkD4THTW1NFtDd1CMMZ2xjHUsNc9fG4vazPzjDuU-GlGP&_nc_ohc=wIXUiPmouhwQ7kNvgHeH9hQ&_nc_ht=scontent.fpag2-1.fna&oh=00_AYCamYIJyjTO-G15cMpTePs609rNBlGaqWq5yK6dIOJCMw&oe=6664E818'
-                      : 'https://scontent.fpag2-1.fna.fbcdn.net/v/t39.30808-1/357402173_3536856133259214_5262858269930229542_n.jpg?stp=c0.0.480.480a_dst-jpg_p480x480&_nc_cat=104&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeFW1arI7WuREvoBgbd6w4HvAMO8ESYVBfYAw7wRJhUF9nCcNHo_i-mLkup_Lhfb354c0UKJtPRihTvu_IEW9SJW&_nc_ohc=tupcVimg2IsQ7kNvgEDMg46&_nc_ht=scontent.fpag2-1.fna&oh=00_AYAlXOV2D-ZP2xhutSfJxXiR3P1Oh1KDXOO6hyBOhqSc5w&oe=6664CDD4'
+                      ? 'https://cdn-icons-png.flaticon.com/512/6780/6780628.png'
+                      : 'https://cdn-icons-png.flaticon.com/512/6134/6134346.png'
                   "
                 />
               </div>
             </div>
             <!-- Chat Header -->
             <div class="chat-header">
-              {{ chat.role === "user" ? "Bryan" : "Dezza" }}
+              {{ chat.role === "user" ? "User" : "Bot" }}
             </div>
             <!-- Chat Message -->
             <Typing v-if="chat.parts[0].text === 'replying'" />
