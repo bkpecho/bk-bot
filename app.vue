@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  title: "BK Bot",
+  title: "BK Bot - Powered by Google's Advanced Language Models.",
   meta: [
     {
       name: "description",
