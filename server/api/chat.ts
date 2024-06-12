@@ -1,9 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getGeminiModel } from "~/lib/geminiClient";
 
 export default defineEventHandler(async (event) => {
-  const api_key = useRuntimeConfig().api_key;
-  const genAI = new GoogleGenerativeAI(api_key);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = await getGeminiModel();
 
   const { text, history } = await readBody(event);
 
@@ -23,16 +21,9 @@ export default defineEventHandler(async (event) => {
 
     return returnText;
   } catch (error) {
-    if (!api_key) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Missing API key",
-      });
-    } else {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `${error}`,
-      });
-    }
+    throw createError({
+      statusCode: 500,
+      statusMessage: `${error}`,
+    });
   }
 });
