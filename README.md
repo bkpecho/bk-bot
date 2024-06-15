@@ -19,7 +19,7 @@ BK Bot is a conversational AI interface powered by Google's advanced language mo
 2. **Clone:** `git clone https://github.com/bkpecho/bk-bot.git`
 3. **Install:** `npm install`
 4. **Environment:**
-    - Create `.env`: `NUXT_API_KEY=YOUR_GOOGLE_AI_API_KEY` (Obtain GOOGLE API key [here](https://aistudio.google.com/app/u/1/apikey))
+    - Create `.env`: `NUXT_GEMINI_API_KEY=YOUR_GOOGLE_AI_API_KEY` (Obtain GOOGLE API key [here](https://aistudio.google.com/app/u/1/apikey))
 5. **Run:** `npm run dev`
     - Access at: `http://localhost:3000`
 
