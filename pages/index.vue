@@ -15,6 +15,7 @@ const getCurrentTime = () => {
 };
 
 const userInput = ref("");
+const fileInput = ref(null);
 const focusInput = ref(null);
 const userMessage = ref({});
 const botMessage = ref({});
@@ -26,7 +27,11 @@ async function sendMessage() {
 
   userMessage.value = {
     role: "user",
-    parts: [{ text: userInput.value }],
+    parts: [
+      {
+        text: `${userInput.value} and the file name is ${fileInput.value.files[0].name}`,
+      },
+    ],
     date: getCurrentTime(),
   };
 
@@ -73,6 +78,22 @@ async function sendMessage() {
     focusInput.value.focus();
   }
 }
+
+const handleFileChange = (event) => {
+  const selectedFiles = event.target.files;
+
+  for (const file of selectedFiles) {
+    console.log("File Name:", file.name);
+    console.log("File Size:", file.size);
+    console.log("File Type:", file.type);
+    // Process or upload the file here
+    // ... your logic
+  }
+};
+
+const triggerFileUpload = () => {
+  fileInput.value.click();
+};
 </script>
 
 <template>
@@ -142,7 +163,7 @@ async function sendMessage() {
         </div>
         <div class="sticky flex flex-col gap-2 bottom-4">
           <div class="flex items-center gap-2">
-            <label for="chat-input" class="sr-only">Search</label>
+            <label for="chat-input" class="sr-only">Send Message</label>
             <div class="relative w-full">
               <!-- <div
                 class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3"
@@ -175,6 +196,7 @@ async function sendMessage() {
               <button
                 type="button"
                 class="absolute inset-y-0 flex items-center end-0 pe-3"
+                @click="triggerFileUpload"
               >
                 <svg
                   class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -189,6 +211,16 @@ async function sendMessage() {
                 </svg>
               </button>
             </div>
+
+            <!-- File Input -->
+            <input
+              id="file-upload"
+              ref="fileInput"
+              type="file"
+              class="hidden"
+              @change="handleFileChange"
+            />
+
             <button
               class="py-4 font-normal btn btn-primary"
               @click="sendMessage"
@@ -198,16 +230,10 @@ async function sendMessage() {
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                viewBox="0 0 20 20"
+                viewBox="0 0 24 24"
               >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                /></svg
-              >Search
+                <path fill="currentColor" d="M3 20v-6l8-2l-8-2V4l19 8z" /></svg
+              >Send
             </button>
           </div>
 
