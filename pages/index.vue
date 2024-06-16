@@ -243,8 +243,10 @@ const triggerFileUpload = () => {
                   :alt="imageData.name"
                 />
               </div>
-              <div class="text-sm font-normal ms-3">
-                <div class="text-sm font-semibold text-primary-content">
+              <div class="overflow-hidden text-sm font-normal ms-3">
+                <div
+                  class="text-sm font-semibold truncate text-primary-content"
+                >
                   {{ imageData.name && imageData.name }}
                 </div>
                 <div class="text-sm italic font-normal text-primary-content">
