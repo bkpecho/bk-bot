@@ -134,9 +134,11 @@ const triggerFileUpload = () => {
 
 <template>
   <div class="flex flex-col h-screen">
-    <Navbar class="sticky top-0" />
-    <div class="flex items-stretch justify-center flex-grow">
-      <div class="flex-1 max-w-[768px] p-4 pb-10">
+    <Navbar class="sticky top-0 mx-auto" />
+
+    <div class="flex flex-col items-center justify-center flex-grow">
+      <!-- Chat History -->
+      <div class="flex-1 flex-shrink-0 w-full max-w-[768px] p-4 pb-2">
         <div class="relative overflow-auto min-h-[96%] pb-10">
           <div
             v-if="chatHistory.length === 0"
@@ -197,67 +199,70 @@ const triggerFileUpload = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="sticky flex flex-col gap-2 bottom-4">
-          <!-- Image Preview -->
-          <div
-            v-if="imageData.url"
-            id="toast-notification"
-            class="max-w-xs p-4 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
-            role="alert"
-          >
-            <div class="flex items-center mb-3">
-              <span class="text-sm font-semibold text-primary-content"
-                >Image Preview</span
+      <!-- Chat Input -->
+      <div
+        class="sticky bottom-0 flex flex-col flex-shrink-0 w-full max-w-screen-lg gap-2"
+      >
+        <!-- Image Preview -->
+        <div
+          v-if="imageData.url"
+          id="toast-notification"
+          class="max-w-xs p-4 mx-3 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
+          role="alert"
+        >
+          <div class="flex items-center mb-3">
+            <span class="text-sm font-semibold text-primary-content"
+              >Image Preview</span
+            >
+            <button
+              :onclick="clearImagePreview"
+              type="button"
+              class="ms-auto btn btn-ghost btn-circle btn-sm hover:text-error"
+              data-dismiss-target="#toast-notification"
+              aria-label="Close"
+            >
+              <span class="sr-only">Close</span>
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
               >
-              <button
-                :onclick="clearImagePreview"
-                type="button"
-                class="ms-auto btn btn-ghost btn-circle btn-sm hover:text-error"
-                data-dismiss-target="#toast-notification"
-                aria-label="Close"
-              >
-                <span class="sr-only">Close</span>
-                <svg
-                  class="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div class="flex items-center">
-              <div class="relative inline-block shrink-0">
-                <NuxtImg
-                  class="h-12"
-                  :src="imageData.url"
-                  :alt="imageData.name"
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                 />
+              </svg>
+            </button>
+          </div>
+          <div class="flex items-center">
+            <div class="relative inline-block shrink-0">
+              <NuxtImg
+                class="h-12"
+                :src="imageData.url"
+                :alt="imageData.name"
+              />
+            </div>
+            <div class="overflow-hidden text-sm font-normal ms-3">
+              <div class="text-sm font-semibold truncate text-primary-content">
+                {{ imageData.name && imageData.name }}
               </div>
-              <div class="overflow-hidden text-sm font-normal ms-3">
-                <div
-                  class="text-sm font-semibold truncate text-primary-content"
-                >
-                  {{ imageData.name && imageData.name }}
-                </div>
-                <div class="text-sm italic font-normal text-primary-content">
-                  {{ imageData.type && imageData.type }}
-                </div>
-                <span class="text-xs font-normal text-error">{{
-                  imageData.size && imageData.size
-                }}</span>
+              <div class="text-sm italic font-normal text-primary-content">
+                {{ imageData.type && imageData.type }}
               </div>
+              <span class="text-xs font-normal text-error">{{
+                imageData.size && imageData.size
+              }}</span>
             </div>
           </div>
+        </div>
+        <div class="bg-base-100">
           <label for="chat" class="sr-only">Your message</label>
           <div class="flex items-center px-3 py-2 rounded-lg bg-base-100">
             <!-- File Input -->
@@ -269,7 +274,6 @@ const triggerFileUpload = () => {
               accept="image/*"
               @change="handleFileChange"
             />
-
             <!-- Upload Image Button -->
             <button
               type="button"
@@ -304,7 +308,6 @@ const triggerFileUpload = () => {
               </svg>
               <span class="sr-only">Upload image</span>
             </button>
-
             <!-- Add emoji Button -->
             <button
               type="button"
@@ -327,7 +330,6 @@ const triggerFileUpload = () => {
               </svg>
               <span class="sr-only">Add emoji</span>
             </button>
-
             <!-- Chat Textarea -->
             <textarea
               id="chat-input"
@@ -341,7 +343,6 @@ const triggerFileUpload = () => {
               :autofocus="!isLoading"
               @keydown.enter="sendMessage"
             ></textarea>
-
             <!-- Send Message Button -->
             <button
               class="inline-flex justify-center p-2 btn btn-circle btn-ghost"
@@ -361,8 +362,7 @@ const triggerFileUpload = () => {
               <span class="sr-only">Send message</span>
             </button>
           </div>
-
-          <p class="text-xs text-center opacity-50">
+          <p class="px-4 pb-2 text-xs text-center opacity-50">
             BK-Bot may display inaccurate info, including about people, so
             double-check its responses.
           </p>
@@ -372,4 +372,8 @@ const triggerFileUpload = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+* {
+  /* border: 1px solid red; */
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
-  <div class="z-10 flex max-w-screen-lg rounded-b-lg navbar">
+  <div class="z-10 flex max-w-screen-lg px-3 rounded-b-lg navbar">
     <div class="flex-1">
-      <NuxtLink to="/" class="text-xl btn btn-ghost text-primary"
+      <NuxtLink to="/" class="font-mono text-xl text-primary"
         >🍎 bk-bot</NuxtLink
       >
     </div>
@@ -78,7 +78,3 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup></script>
-
-<style></style>
