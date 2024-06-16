@@ -15,18 +15,40 @@ const getCurrentTime = () => {
 };
 
 const userInput = ref("");
+const fileInput = ref(null);
+const imageData = ref({ name: "", type: "", size: "", url: "" });
 const focusInput = ref(null);
 const userMessage = ref({});
 const botMessage = ref({});
 const isLoading = ref(false);
 const chatHistory = store.chatHistory;
 
-async function sendMessage() {
+async function sendMessage(event) {
+  if (event.key === "Enter" && event.shiftKey) {
+    // Check for Shift + Enter
+    const textarea = this.$refs.myTextarea;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Insert a new line character at the cursor position
+    textarea.value =
+      textarea.value.substring(0, start) + "\n" + textarea.value.substring(end);
+
+    // Adjust cursor position after inserting the new line
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+
+    event.preventDefault();
+  }
+
   if (userInput.value.trim() === "") return;
 
   userMessage.value = {
     role: "user",
-    parts: [{ text: userInput.value }],
+    parts: [
+      {
+        text: `${userInput.value}`,
+      },
+    ],
     date: getCurrentTime(),
   };
 
@@ -73,6 +95,41 @@ async function sendMessage() {
     focusInput.value.focus();
   }
 }
+
+const handleFileChange = (event) => {
+  const selectedFile = event.target.files[0];
+  console.log("Selected Files:", selectedFile);
+
+  console.log("File Name:", selectedFile.name);
+  console.log("File Size:", selectedFile.size);
+  console.log("File Type:", selectedFile.type);
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageData.value = {
+      name: selectedFile.name.toUpperCase(),
+      type: selectedFile.type,
+      size: (selectedFile.size / 1000).toFixed(2) + "kb",
+      url: e.target.result,
+    };
+  };
+  reader.readAsDataURL(selectedFile);
+};
+
+const clearImagePreview = () => {
+  imageData.value = { name: "", url: "", size: "", type: "" };
+  if (fileInput.value) {
+    fileInput.value.value = null;
+  }
+
+  console.log("🗑️ Image Preview Cleared!");
+  console.log("File Input:", fileInput.value);
+  console.log("Image Data:", imageData.value);
+};
+
+const triggerFileUpload = () => {
+  fileInput.value.click();
+};
 </script>
 
 <template>
@@ -96,15 +153,16 @@ async function sendMessage() {
             }"
             class="chat"
           >
-            <div className="chat-image avatar">
+            <div class="chat-image avatar">
               <div className="w-10 rounded-full">
                 <NuxtImg
-                  :alt="chat.role"
                   :src="
                     chat.role === 'user'
-                      ? 'https://cdn-icons-png.flaticon.com/512/6780/6780628.png'
+                      ? 'https://www.tailframes.com/images/avatar.webp'
                       : 'https://cdn-icons-png.flaticon.com/512/6134/6134346.png'
                   "
+                  :alt="chat.role"
+                  class="aspect-square"
                 />
               </div>
             </div>
@@ -139,23 +197,179 @@ async function sendMessage() {
             </div>
           </div>
         </div>
-        <div class="sticky flex justify-center bottom-10">
-          <input
-            ref="focusInput"
-            v-model="userInput"
-            type="text"
-            placeholder="Aa"
-            class="w-full max-w-xs mr-2 input input-bordered input-primary"
-            :disabled="isLoading"
-            :autofocus="!isLoading"
-            @keydown.enter="sendMessage"
-          />
-          <button class="btn btn-primary" @click="sendMessage">
-            <Icon name="mdi:send" />
-            Send
-          </button>
+
+        <div class="sticky flex flex-col gap-2 bottom-4">
+          <!-- Image Preview -->
+          <div
+            v-if="imageData.url"
+            id="toast-notification"
+            class="max-w-xs p-4 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
+            role="alert"
+          >
+            <div class="flex items-center mb-3">
+              <span class="text-sm font-semibold text-primary-content"
+                >Image Preview</span
+              >
+              <button
+                :onclick="clearImagePreview"
+                type="button"
+                class="ms-auto btn btn-ghost btn-circle btn-sm hover:text-error"
+                data-dismiss-target="#toast-notification"
+                aria-label="Close"
+              >
+                <span class="sr-only">Close</span>
+                <svg
+                  class="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="relative inline-block shrink-0">
+                <NuxtImg
+                  class="h-12"
+                  :src="imageData.url"
+                  :alt="imageData.name"
+                />
+              </div>
+              <div class="overflow-hidden text-sm font-normal ms-3">
+                <div
+                  class="text-sm font-semibold truncate text-primary-content"
+                >
+                  {{ imageData.name && imageData.name }}
+                </div>
+                <div class="text-sm italic font-normal text-primary-content">
+                  {{ imageData.type && imageData.type }}
+                </div>
+                <span class="text-xs font-normal text-error">{{
+                  imageData.size && imageData.size
+                }}</span>
+              </div>
+            </div>
+          </div>
+          <label for="chat" class="sr-only">Your message</label>
+          <div class="flex items-center px-3 py-2 rounded-lg bg-base-100">
+            <!-- File Input -->
+            <input
+              id="file-upload"
+              ref="fileInput"
+              type="file"
+              class="hidden"
+              accept="image/*"
+              @change="handleFileChange"
+            />
+
+            <!-- Upload Image Button -->
+            <button
+              type="button"
+              class="inline-flex justify-center p-2 text-gray-500 btn btn-circle btn-ghost"
+              @click="triggerFileUpload"
+            >
+              <svg
+                class="w-5 h-5 text-primary"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 18"
+              >
+                <path
+                  fill="currentColor"
+                  d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
+                />
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"
+                />
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
+                />
+              </svg>
+              <span class="sr-only">Upload image</span>
+            </button>
+
+            <!-- Add emoji Button -->
+            <button
+              type="button"
+              class="p-2 text-gray-500 btn btn-circle btn-ghost"
+            >
+              <svg
+                class="w-5 h-5 text-primary"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"
+                />
+              </svg>
+              <span class="sr-only">Add emoji</span>
+            </button>
+
+            <!-- Chat Textarea -->
+            <textarea
+              id="chat-input"
+              ref="focusInput"
+              v-model="userInput"
+              rows="1"
+              class="block w-full px-2 pt-3 mx-4 text-sm rounded-lg ps-4 textarea textarea-primary"
+              type="text"
+              placeholder="Type chat here..."
+              :disabled="isLoading"
+              :autofocus="!isLoading"
+              @keydown.enter="sendMessage"
+            ></textarea>
+
+            <!-- Send Message Button -->
+            <button
+              class="inline-flex justify-center p-2 btn btn-circle btn-ghost"
+              @click="sendMessage"
+            >
+              <svg
+                class="w-5 h-5 rotate-90 rtl:-rotate-90 text-primary"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 18 20"
+              >
+                <path
+                  d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"
+                />
+              </svg>
+              <span class="sr-only">Send message</span>
+            </button>
+          </div>
+
+          <p class="text-xs text-center opacity-50">
+            BK-Bot may display inaccurate info, including about people, so
+            double-check its responses.
+          </p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped></style>

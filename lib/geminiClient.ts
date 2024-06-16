@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 let cachedModel: any; // TODO: Replace this with redis caching in the future
 
 async function getGeminiModel() {
-  const api_key = useRuntimeConfig().api_key;
+  const api_key = useRuntimeConfig().gemini_api_key;
 
   if (!api_key) {
     throw new Error(
