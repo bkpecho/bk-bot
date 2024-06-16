@@ -22,14 +22,30 @@ const botMessage = ref({});
 const isLoading = ref(false);
 const chatHistory = store.chatHistory;
 
-async function sendMessage() {
+async function sendMessage(event) {
+  if (event.key === "Enter" && event.shiftKey) {
+    // Check for Shift + Enter
+    const textarea = this.$refs.myTextarea;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Insert a new line character at the cursor position
+    textarea.value =
+      textarea.value.substring(0, start) + "\n" + textarea.value.substring(end);
+
+    // Adjust cursor position after inserting the new line
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+
+    event.preventDefault();
+  }
+
   if (userInput.value.trim() === "") return;
 
   userMessage.value = {
     role: "user",
     parts: [
       {
-        text: `${userInput.value} and the file name is ${fileInput.value.files[0].name}`,
+        text: `${userInput.value}`,
       },
     ],
     date: getCurrentTime(),
@@ -162,56 +178,8 @@ const triggerFileUpload = () => {
           </div>
         </div>
         <div class="sticky flex flex-col gap-2 bottom-4">
-          <div class="flex items-center gap-2">
-            <label for="chat-input" class="sr-only">Send Message</label>
-            <div class="relative w-full">
-              <!-- <div
-                class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3"
-              >
-                <svg
-                  class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M6 14h8v-2H6zm0-3h12V9H6zm0-3h12V6H6zM2 22V4q0-.825.588-1.412T4 2h16q.825 0 1.413.588T22 4v12q0 .825-.587 1.413T20 18H6zm3.15-6H20V4H4v13.125zM4 16V4z"
-                  />
-                </svg>
-              </div> -->
-              <input
-                id="chat-input"
-                ref="focusInput"
-                v-model="userInput"
-                type="text"
-                class="bg-gray-50 py-3.5 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-200 focus:border-blue-200 block w-full ps-4 p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
-                placeholder="Type chat here..."
-                :disabled="isLoading"
-                :autofocus="!isLoading"
-                @keydown.enter="sendMessage"
-              />
-              <!-- Image Upload Button -->
-              <button
-                type="button"
-                class="absolute inset-y-0 flex items-center end-0 pe-3"
-                @click="triggerFileUpload"
-              >
-                <svg
-                  class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M13 19c0 .7.13 1.37.35 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v8.35c-.63-.22-1.3-.35-2-.35V5H5v14zm.96-6.71l-2.75 3.54l-1.96-2.36L6.5 17h6.85c.4-1.12 1.12-2.09 2.05-2.79zM20 18v-3h-2v3h-3v2h3v3h2v-3h3v-2z"
-                  />
-                </svg>
-              </button>
-            </div>
-
+          <label for="chat" class="sr-only">Your message</label>
+          <div class="flex items-center px-3 py-2 rounded-lg bg-base-100">
             <!-- File Input -->
             <input
               id="file-upload"
@@ -221,19 +189,95 @@ const triggerFileUpload = () => {
               @change="handleFileChange"
             />
 
+            <!-- Upload Image Button -->
             <button
-              class="py-4 font-normal btn btn-primary"
-              @click="sendMessage"
+              type="button"
+              class="inline-flex justify-center p-2 text-gray-500 btn btn-circle btn-ghost"
+              @click="triggerFileUpload"
             >
               <svg
-                class="w-3 h-3"
+                class="w-5 h-5 text-primary"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                viewBox="0 0 24 24"
+                viewBox="0 0 20 18"
               >
-                <path fill="currentColor" d="M3 20v-6l8-2l-8-2V4l19 8z" /></svg
-              >Send
+                <path
+                  fill="currentColor"
+                  d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
+                />
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"
+                />
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
+                />
+              </svg>
+              <span class="sr-only">Upload image</span>
+            </button>
+
+            <!-- Add emoji Button -->
+            <button
+              type="button"
+              class="p-2 text-gray-500 btn btn-circle btn-ghost"
+            >
+              <svg
+                class="w-5 h-5 text-primary"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"
+                />
+              </svg>
+              <span class="sr-only">Add emoji</span>
+            </button>
+
+            <!-- Chat Textarea -->
+            <textarea
+              id="chat-input"
+              ref="focusInput"
+              v-model="userInput"
+              rows="1"
+              class="block w-full px-2 pt-3 mx-4 text-sm rounded-lg ps-4 textarea textarea-primary"
+              type="text"
+              placeholder="Type chat here..."
+              :disabled="isLoading"
+              :autofocus="!isLoading"
+              @keydown.enter="sendMessage"
+            ></textarea>
+
+            <!-- Send Message Button -->
+            <button
+              class="inline-flex justify-center p-2 btn btn-circle btn-ghost"
+              @click="sendMessage"
+            >
+              <svg
+                class="w-5 h-5 rotate-90 rtl:-rotate-90 text-primary"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 18 20"
+              >
+                <path
+                  d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"
+                />
+              </svg>
+              <span class="sr-only">Send message</span>
             </button>
           </div>
 
@@ -246,3 +290,5 @@ const triggerFileUpload = () => {
     </div>
   </div>
 </template>
+
+<style scoped></style>
