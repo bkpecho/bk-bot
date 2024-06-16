@@ -1,7 +1,9 @@
 <template>
-  <div class="z-10 rounded-b-lg navbar">
+  <div class="z-10 flex max-w-screen-lg rounded-b-lg navbar">
     <div class="flex-1">
-      <NuxtLink to="/" class="text-xl btn btn-ghost">🤖 bk-bot</NuxtLink>
+      <NuxtLink to="/" class="text-xl btn btn-ghost text-primary"
+        >🍎 bk-bot</NuxtLink
+      >
     </div>
     <div class="flex-none gap-2">
       <div>
@@ -9,7 +11,7 @@
           <input
             type="checkbox"
             value="synthwave"
-            class="col-span-2 col-start-1 row-start-1 toggle theme-controller bg-base-content"
+            class="col-span-2 col-start-1 row-start-1 toggle theme-controller bg-primary"
           />
           <svg
             class="col-start-1 row-start-1 stroke-base-100 fill-base-100"
