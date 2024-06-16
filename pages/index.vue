@@ -16,6 +16,7 @@ const getCurrentTime = () => {
 
 const userInput = ref("");
 const fileInput = ref(null);
+const imageData = ref({ name: "", type: "", size: "", url: "" });
 const focusInput = ref(null);
 const userMessage = ref({});
 const botMessage = ref({});
@@ -96,15 +97,34 @@ async function sendMessage(event) {
 }
 
 const handleFileChange = (event) => {
-  const selectedFiles = event.target.files;
+  const selectedFile = event.target.files[0];
+  console.log("Selected Files:", selectedFile);
 
-  for (const file of selectedFiles) {
-    console.log("File Name:", file.name);
-    console.log("File Size:", file.size);
-    console.log("File Type:", file.type);
-    // Process or upload the file here
-    // ... your logic
+  console.log("File Name:", selectedFile.name);
+  console.log("File Size:", selectedFile.size);
+  console.log("File Type:", selectedFile.type);
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageData.value = {
+      name: selectedFile.name.toUpperCase(),
+      type: selectedFile.type,
+      size: (selectedFile.size / 1000).toFixed(2) + "kb",
+      url: e.target.result,
+    };
+  };
+  reader.readAsDataURL(selectedFile);
+};
+
+const clearImagePreview = () => {
+  imageData.value = { name: "", url: "", size: "", type: "" };
+  if (fileInput.value) {
+    fileInput.value.value = null;
   }
+
+  console.log("🗑️ Image Preview Cleared!");
+  console.log("File Input:", fileInput.value);
+  console.log("Image Data:", imageData.value);
 };
 
 const triggerFileUpload = () => {
@@ -177,7 +197,65 @@ const triggerFileUpload = () => {
             </div>
           </div>
         </div>
+
         <div class="sticky flex flex-col gap-2 bottom-4">
+          <!-- Image Preview -->
+          <div
+            v-if="imageData.url"
+            id="toast-notification"
+            class="max-w-xs p-4 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
+            role="alert"
+          >
+            <div class="flex items-center mb-3">
+              <span class="text-sm font-semibold text-primary-content"
+                >Image Preview</span
+              >
+              <button
+                :onclick="clearImagePreview"
+                type="button"
+                class="ms-auto btn btn-ghost btn-circle btn-sm hover:text-error"
+                data-dismiss-target="#toast-notification"
+                aria-label="Close"
+              >
+                <span class="sr-only">Close</span>
+                <svg
+                  class="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="relative inline-block shrink-0">
+                <NuxtImg
+                  class="h-12"
+                  :src="imageData.url"
+                  :alt="imageData.name"
+                />
+              </div>
+              <div class="text-sm font-normal ms-3">
+                <div class="text-sm font-semibold text-primary-content">
+                  {{ imageData.name && imageData.name }}
+                </div>
+                <div class="text-sm italic font-normal text-primary-content">
+                  {{ imageData.type && imageData.type }}
+                </div>
+                <span class="text-xs font-normal text-error">{{
+                  imageData.size && imageData.size
+                }}</span>
+              </div>
+            </div>
+          </div>
           <label for="chat" class="sr-only">Your message</label>
           <div class="flex items-center px-3 py-2 rounded-lg bg-base-100">
             <!-- File Input -->
@@ -186,6 +264,7 @@ const triggerFileUpload = () => {
               ref="fileInput"
               type="file"
               class="hidden"
+              accept="image/*"
               @change="handleFileChange"
             />
 
