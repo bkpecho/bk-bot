@@ -8,6 +8,10 @@ defineProps({
     type: Function,
     required: true,
   },
+  isPreview: {
+    type: Boolean,
+    required: true,
+  },
 });
 </script>
 
@@ -18,10 +22,13 @@ defineProps({
     class="max-w-xs p-4 mx-3 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
     role="alert"
   >
-    <div class="flex items-center mb-3">
+    <!-- Title and Close Button -->
+    <div v-if="isPreview" class="flex items-center mb-3">
+      <!-- Title -->
       <span class="text-sm font-semibold text-primary-content"
         >Image Preview</span
       >
+      <!-- Close Button -->
       <button
         :onclick="clearImagePreview"
         type="button"
