@@ -1,27 +1,25 @@
 <script setup>
 import { ref } from "vue";
-import date from "date-and-time";
 import markdownit from "markdown-it";
+import { getCurrentTime } from "~/utils/getCurrentTime";
 import { useChatStore } from "~/stores/useChatStore";
+
+// components
+import ImagePreview from "~/components/chat/imagePreview.vue";
+import Typing from "~/components/chat/typing.vue";
+import Navbar from "~/components/chat/navbar.vue";
 
 const store = useChatStore();
 const md = markdownit();
 
-// TODO: place this on utils or something
-const getCurrentTime = () => {
-  const now = new Date();
-  const currentTime = date.format(now, "hh:mm:ss A");
-  return currentTime;
-};
-
 const userInput = ref("");
-const fileInput = ref(null);
-const imageData = ref({ name: "", type: "", size: "", url: "" });
-const focusInput = ref(null);
 const userMessage = ref({});
 const botMessage = ref({});
 const isLoading = ref(false);
+const focusInput = ref(null);
+const fileInput = ref(null);
 const chatHistory = store.chatHistory;
+const imageData = ref({ name: "", type: "", size: "", url: "", link: "" });
 
 async function sendMessage(event) {
   if (event.key === "Enter" && event.shiftKey) {
@@ -42,19 +40,35 @@ async function sendMessage(event) {
 
   if (userInput.value.trim() === "") return;
 
-  userMessage.value = {
-    role: "user",
-    parts: [
-      {
-        text: `${userInput.value}`,
-      },
-    ],
-    date: getCurrentTime(),
-  };
+  // Check if user has uploaded an image
+  if (imageData.value.url) {
+    userMessage.value = {
+      role: "user",
+      parts: [
+        {
+          text: `${userInput.value}`,
+        },
+      ],
+      date: getCurrentTime(),
+      imageData: imageData.value,
+    };
+  } else {
+    // No image uploaded
+    userMessage.value = {
+      role: "user",
+      parts: [
+        {
+          text: `${userInput.value}`,
+        },
+      ],
+      date: getCurrentTime(),
+    };
+  }
 
   store.saveChatHistory(userMessage.value);
 
-  let response = "";
+  let chatResponse = "";
+  let imageResponse = "";
 
   try {
     isLoading.value = true;
@@ -77,18 +91,32 @@ async function sendMessage(event) {
       store.saveChatHistory(botMessage.value);
     }, 500);
 
-    response = await $fetch(`/api/chat`, {
-      method: "POST",
-      body: {
-        text: input,
-        history: store.getHistoryOnly,
-      },
-    });
+    if (imageData.value.url) {
+      imageResponse = await $fetch(`/api/image`, {
+        method: "POST",
+        body: {
+          prompt: input,
+          imageParts: store.getImageParts,
+        },
+      });
+    } else {
+      chatResponse = await $fetch(`/api/chat`, {
+        method: "POST",
+        body: {
+          text: input,
+          history: store.getHistoryOnly,
+        },
+      });
+    }
   } catch (error) {
     console.error(error);
     store.messageReceived(`${error}`, getCurrentTime());
   } finally {
-    store.messageReceived(response, getCurrentTime());
+    if (imageData.value.url) {
+      store.messageReceived(imageResponse, getCurrentTime());
+    } else {
+      store.messageReceived(chatResponse, getCurrentTime());
+    }
 
     isLoading.value = false;
     await nextTick();
@@ -96,28 +124,32 @@ async function sendMessage(event) {
   }
 }
 
+const triggerFileUpload = () => {
+  fileInput.value.click();
+};
+
 const handleFileChange = (event) => {
   const selectedFile = event.target.files[0];
-  console.log("Selected Files:", selectedFile);
 
   console.log("File Name:", selectedFile.name);
   console.log("File Size:", selectedFile.size);
   console.log("File Type:", selectedFile.type);
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     imageData.value = {
       name: selectedFile.name.toUpperCase(),
       type: selectedFile.type,
       size: (selectedFile.size / 1000).toFixed(2) + "kb",
       url: e.target.result,
+      link: e.target.result.split(",")[1],
     };
   };
   reader.readAsDataURL(selectedFile);
 };
 
 const clearImagePreview = () => {
-  imageData.value = { name: "", url: "", size: "", type: "" };
+  imageData.value = { name: "", type: "", size: "", url: "", link: "" };
   if (fileInput.value) {
     fileInput.value.value = null;
   }
@@ -126,17 +158,15 @@ const clearImagePreview = () => {
   console.log("File Input:", fileInput.value);
   console.log("Image Data:", imageData.value);
 };
-
-const triggerFileUpload = () => {
-  fileInput.value.click();
-};
 </script>
 
 <template>
   <div class="flex flex-col h-screen">
-    <Navbar class="sticky top-0" />
-    <div class="flex items-stretch justify-center flex-grow">
-      <div class="flex-1 max-w-[768px] p-4 pb-10">
+    <Navbar class="sticky top-0 mx-auto" />
+
+    <div class="flex flex-col items-center justify-center flex-grow">
+      <!-- Chat History -->
+      <div class="flex-1 flex-shrink-0 w-full max-w-[768px] p-4 pb-2">
         <div class="relative overflow-auto min-h-[96%] pb-10">
           <div
             v-if="chatHistory.length === 0"
@@ -197,67 +227,21 @@ const triggerFileUpload = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="sticky flex flex-col gap-2 bottom-4">
-          <!-- Image Preview -->
-          <div
-            v-if="imageData.url"
-            id="toast-notification"
-            class="max-w-xs p-4 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
-            role="alert"
-          >
-            <div class="flex items-center mb-3">
-              <span class="text-sm font-semibold text-primary-content"
-                >Image Preview</span
-              >
-              <button
-                :onclick="clearImagePreview"
-                type="button"
-                class="ms-auto btn btn-ghost btn-circle btn-sm hover:text-error"
-                data-dismiss-target="#toast-notification"
-                aria-label="Close"
-              >
-                <span class="sr-only">Close</span>
-                <svg
-                  class="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div class="flex items-center">
-              <div class="relative inline-block shrink-0">
-                <NuxtImg
-                  class="h-12"
-                  :src="imageData.url"
-                  :alt="imageData.name"
-                />
-              </div>
-              <div class="overflow-hidden text-sm font-normal ms-3">
-                <div
-                  class="text-sm font-semibold truncate text-primary-content"
-                >
-                  {{ imageData.name && imageData.name }}
-                </div>
-                <div class="text-sm italic font-normal text-primary-content">
-                  {{ imageData.type && imageData.type }}
-                </div>
-                <span class="text-xs font-normal text-error">{{
-                  imageData.size && imageData.size
-                }}</span>
-              </div>
-            </div>
-          </div>
+      <!-- Chat Input Container -->
+      <div
+        class="sticky bottom-0 flex flex-col flex-shrink-0 w-full max-w-screen-lg gap-2"
+      >
+        <!-- Image Preview -->
+        <ImagePreview
+          :image-data="imageData"
+          :clear-image-preview="clearImagePreview"
+          :is-preview="false"
+        />
+
+        <!-- Chat Input -->
+        <div class="bg-base-100">
           <label for="chat" class="sr-only">Your message</label>
           <div class="flex items-center px-3 py-2 rounded-lg bg-base-100">
             <!-- File Input -->
@@ -269,7 +253,6 @@ const triggerFileUpload = () => {
               accept="image/*"
               @change="handleFileChange"
             />
-
             <!-- Upload Image Button -->
             <button
               type="button"
@@ -304,7 +287,6 @@ const triggerFileUpload = () => {
               </svg>
               <span class="sr-only">Upload image</span>
             </button>
-
             <!-- Add emoji Button -->
             <button
               type="button"
@@ -327,7 +309,6 @@ const triggerFileUpload = () => {
               </svg>
               <span class="sr-only">Add emoji</span>
             </button>
-
             <!-- Chat Textarea -->
             <textarea
               id="chat-input"
@@ -341,7 +322,6 @@ const triggerFileUpload = () => {
               :autofocus="!isLoading"
               @keydown.enter="sendMessage"
             ></textarea>
-
             <!-- Send Message Button -->
             <button
               class="inline-flex justify-center p-2 btn btn-circle btn-ghost"
@@ -361,8 +341,7 @@ const triggerFileUpload = () => {
               <span class="sr-only">Send message</span>
             </button>
           </div>
-
-          <p class="text-xs text-center opacity-50">
+          <p class="px-4 pb-2 text-xs text-center opacity-50">
             BK-Bot may display inaccurate info, including about people, so
             double-check its responses.
           </p>
@@ -372,4 +351,8 @@ const triggerFileUpload = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+* {
+  /* border: 1px solid red; */
+}
+</style>

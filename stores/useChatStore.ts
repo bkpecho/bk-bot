@@ -4,6 +4,15 @@ interface ChatHistory {
   role: string;
   parts: { text: string }[];
   date: string;
+  imageData?: ImageData;
+}
+
+interface ImageData {
+  name: string;
+  type: string;
+  size: string;
+  url: string;
+  link: string;
 }
 
 export const useChatStore = defineStore({
@@ -28,6 +37,14 @@ export const useChatStore = defineStore({
       state.chatHistory.map((chat) => ({
         role: chat.role,
         parts: chat.parts,
+      })),
+
+    getImageParts: (state) =>
+      state.chatHistory.map((chat) => ({
+        inlineData: {
+          data: chat.imageData?.link,
+          mimeType: chat.imageData?.type,
+        },
       })),
   },
 });
