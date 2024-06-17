@@ -19,7 +19,7 @@ const isLoading = ref(false);
 const focusInput = ref(null);
 const fileInput = ref(null);
 const chatHistory = store.chatHistory;
-const imageData = ref({ name: "", type: "", size: "", url: "" });
+const imageData = ref({ name: "", type: "", size: "", url: "", link: "" });
 
 async function sendMessage(event) {
   if (event.key === "Enter" && event.shiftKey) {
@@ -40,19 +40,35 @@ async function sendMessage(event) {
 
   if (userInput.value.trim() === "") return;
 
-  userMessage.value = {
-    role: "user",
-    parts: [
-      {
-        text: `${userInput.value}`,
-      },
-    ],
-    date: getCurrentTime(),
-  };
+  // Check if user has uploaded an image
+  if (imageData.value.url) {
+    userMessage.value = {
+      role: "user",
+      parts: [
+        {
+          text: `${userInput.value}`,
+        },
+      ],
+      date: getCurrentTime(),
+      imageData: imageData.value,
+    };
+  } else {
+    // No image uploaded
+    userMessage.value = {
+      role: "user",
+      parts: [
+        {
+          text: `${userInput.value}`,
+        },
+      ],
+      date: getCurrentTime(),
+    };
+  }
 
   store.saveChatHistory(userMessage.value);
 
-  let response = "";
+  let chatResponse = "";
+  let imageResponse = "";
 
   try {
     isLoading.value = true;
@@ -75,18 +91,32 @@ async function sendMessage(event) {
       store.saveChatHistory(botMessage.value);
     }, 500);
 
-    response = await $fetch(`/api/chat`, {
-      method: "POST",
-      body: {
-        text: input,
-        history: store.getHistoryOnly,
-      },
-    });
+    if (imageData.value.url) {
+      imageResponse = await $fetch(`/api/image`, {
+        method: "POST",
+        body: {
+          prompt: input,
+          imageParts: store.getImageParts,
+        },
+      });
+    } else {
+      chatResponse = await $fetch(`/api/chat`, {
+        method: "POST",
+        body: {
+          text: input,
+          history: store.getHistoryOnly,
+        },
+      });
+    }
   } catch (error) {
     console.error(error);
     store.messageReceived(`${error}`, getCurrentTime());
   } finally {
-    store.messageReceived(response, getCurrentTime());
+    if (imageData.value.url) {
+      store.messageReceived(imageResponse, getCurrentTime());
+    } else {
+      store.messageReceived(chatResponse, getCurrentTime());
+    }
 
     isLoading.value = false;
     await nextTick();
@@ -100,26 +130,26 @@ const triggerFileUpload = () => {
 
 const handleFileChange = (event) => {
   const selectedFile = event.target.files[0];
-  console.log("Selected Files:", selectedFile);
 
   console.log("File Name:", selectedFile.name);
   console.log("File Size:", selectedFile.size);
   console.log("File Type:", selectedFile.type);
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     imageData.value = {
       name: selectedFile.name.toUpperCase(),
       type: selectedFile.type,
       size: (selectedFile.size / 1000).toFixed(2) + "kb",
       url: e.target.result,
+      link: e.target.result.split(",")[1],
     };
   };
   reader.readAsDataURL(selectedFile);
 };
 
 const clearImagePreview = () => {
-  imageData.value = { name: "", url: "", size: "", type: "" };
+  imageData.value = { name: "", type: "", size: "", url: "", link: "" };
   if (fileInput.value) {
     fileInput.value.value = null;
   }
@@ -207,6 +237,7 @@ const clearImagePreview = () => {
         <ImagePreview
           :image-data="imageData"
           :clear-image-preview="clearImagePreview"
+          :is-preview="false"
         />
 
         <!-- Chat Input -->
