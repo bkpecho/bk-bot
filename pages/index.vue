@@ -109,11 +109,12 @@ async function sendMessage(event) {
       });
     }
   } catch (error) {
+    store.messageReceived(`Oopsie!`, getCurrentTime());
     console.error(error);
-    store.messageReceived(`${error}`, getCurrentTime());
   } finally {
     if (imageData.value.url) {
       store.messageReceived(imageResponse, getCurrentTime());
+      clearImagePreview();
     } else {
       store.messageReceived(chatResponse, getCurrentTime());
     }
@@ -122,6 +123,7 @@ async function sendMessage(event) {
     await nextTick();
     focusInput.value.focus();
   }
+  console.log("🚀 chat history", store.chatHistory);
 }
 
 const triggerFileUpload = () => {
@@ -174,6 +176,7 @@ const clearImagePreview = () => {
           >
             <p>Type Something...</p>
           </div>
+          <!-- Chat Bubble -->
           <div
             v-for="(chat, index) in chatHistory"
             :key="chat.id"
@@ -212,6 +215,9 @@ const clearImagePreview = () => {
             >
               <!-- eslint-disable vue/no-v-html -->
               <div v-html="md.render(chat.parts[0].text)" />
+              <div v-if="chat.imageData?.url">
+                <NuxtImg :src="chat.imageData.url" />
+              </div>
             </div>
             <!-- Chat Footer -->
             <div className="chat-footer opacity-50">
@@ -237,7 +243,7 @@ const clearImagePreview = () => {
         <ImagePreview
           :image-data="imageData"
           :clear-image-preview="clearImagePreview"
-          :is-preview="false"
+          :is-preview="true"
         />
 
         <!-- Chat Input -->
