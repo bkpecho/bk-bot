@@ -93,6 +93,7 @@ async function sendMessage(event) {
 
     if (imageData.value.url) {
       // TODO: Save imageResponse to chat history
+      // TODO: bot remembers previous images on this condition (on imageResponse)
       imageResponse = await $fetch(`/api/image`, {
         method: "POST",
         body: {
@@ -217,7 +218,12 @@ const clearImagePreview = () => {
               <!-- eslint-disable vue/no-v-html -->
               <div v-html="md.render(chat.parts[0].text)" />
               <div v-if="chat.imageData?.url">
-                <NuxtImg :src="chat.imageData.url" />
+                <!-- TODO: weird chat bubble width on lengthy prompt + image -->
+                <NuxtImg
+                  :src="chat.imageData.url"
+                  :alt="chat.imageData.name"
+                  class="max-w-[180px]"
+                />
               </div>
             </div>
             <!-- Chat Footer -->
