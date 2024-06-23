@@ -5,8 +5,14 @@ export default defineEventHandler(async (event) => {
 
   const { prompt, imageParts } = await readBody(event);
 
+  const imageData = imageParts.map((image) => {
+    return {
+      inlineData: image,
+    };
+  });
+
   try {
-    const result = await model.generateContent([prompt, [...imageParts]]);
+    const result = await model.generateContent([prompt, ...imageData]);
     const response = await result.response;
     const text = response.text();
 
