@@ -1,11 +1,16 @@
 import { getGeminiModel } from "~/lib/geminiClient";
 
 export default defineEventHandler(async (event) => {
+  interface ImageData {
+    data: string;
+    mimeType: string;
+  }
+
   const model = await getGeminiModel();
 
   const { prompt, imageParts } = await readBody(event);
 
-  const imageData = imageParts.map((image) => {
+  const imageData = imageParts.map((image: ImageData) => {
     return {
       inlineData: image,
     };
