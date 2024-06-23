@@ -256,7 +256,7 @@ const clearImagePreview = () => {
               ref="fileInput"
               type="file"
               class="hidden"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg"
               @change="handleFileChange"
             />
             <!-- Upload Image Button -->
