@@ -41,10 +41,8 @@ export const useChatStore = defineStore({
 
     getImageParts: (state) =>
       state.chatHistory.map((chat) => ({
-        inlineData: {
-          data: chat.imageData?.link,
-          mimeType: chat.imageData?.type,
-        },
+        data: chat.imageData?.link,
+        mimeType: chat.imageData?.type,
       })),
   },
 });

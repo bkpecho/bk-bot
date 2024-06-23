@@ -92,6 +92,8 @@ async function sendMessage(event) {
     }, 500);
 
     if (imageData.value.url) {
+      // TODO: Save imageResponse to chat history
+      // TODO: bot remembers previous images on this condition (on imageResponse)
       imageResponse = await $fetch(`/api/image`, {
         method: "POST",
         body: {
@@ -109,11 +111,12 @@ async function sendMessage(event) {
       });
     }
   } catch (error) {
+    store.messageReceived(`Oopsie!`, getCurrentTime());
     console.error(error);
-    store.messageReceived(`${error}`, getCurrentTime());
   } finally {
     if (imageData.value.url) {
       store.messageReceived(imageResponse, getCurrentTime());
+      clearImagePreview();
     } else {
       store.messageReceived(chatResponse, getCurrentTime());
     }
@@ -122,6 +125,7 @@ async function sendMessage(event) {
     await nextTick();
     focusInput.value.focus();
   }
+  console.log("🚀 chat history", store.chatHistory);
 }
 
 const triggerFileUpload = () => {
@@ -174,6 +178,7 @@ const clearImagePreview = () => {
           >
             <p>Type Something...</p>
           </div>
+          <!-- Chat Bubble -->
           <div
             v-for="(chat, index) in chatHistory"
             :key="chat.id"
@@ -212,6 +217,14 @@ const clearImagePreview = () => {
             >
               <!-- eslint-disable vue/no-v-html -->
               <div v-html="md.render(chat.parts[0].text)" />
+              <div v-if="chat.imageData?.url">
+                <!-- TODO: weird chat bubble width on lengthy prompt + image -->
+                <NuxtImg
+                  :src="chat.imageData.url"
+                  :alt="chat.imageData.name"
+                  class="max-w-[180px]"
+                />
+              </div>
             </div>
             <!-- Chat Footer -->
             <div className="chat-footer opacity-50">
@@ -237,7 +250,7 @@ const clearImagePreview = () => {
         <ImagePreview
           :image-data="imageData"
           :clear-image-preview="clearImagePreview"
-          :is-preview="false"
+          :is-preview="true"
         />
 
         <!-- Chat Input -->
@@ -250,7 +263,7 @@ const clearImagePreview = () => {
               ref="fileInput"
               type="file"
               class="hidden"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg"
               @change="handleFileChange"
             />
             <!-- Upload Image Button -->
