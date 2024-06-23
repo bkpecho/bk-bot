@@ -92,6 +92,7 @@ async function sendMessage(event) {
     }, 500);
 
     if (imageData.value.url) {
+      // TODO: Save imageResponse to chat history
       imageResponse = await $fetch(`/api/image`, {
         method: "POST",
         body: {

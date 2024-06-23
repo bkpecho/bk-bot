@@ -1,12 +1,15 @@
 import Compressor from "compressorjs";
 export const getCompressedImage = (file) => {
-  new Compressor(file, {
-    quality: 0.6,
-    success(result) {
-      return result;
-    },
-    error(err) {
-      console.log(err.message);
-    },
+  // TODO: implement image compression
+  return new Promise((resolve, reject) => {
+    new Compressor(file, {
+      quality: 0.6,
+      success(result) {
+        resolve(result);
+      },
+      error(err) {
+        reject(err);
+      },
+    });
   });
 };
