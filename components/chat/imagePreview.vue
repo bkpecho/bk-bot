@@ -12,12 +12,16 @@ defineProps({
     type: Boolean,
     required: true,
   },
+  isShowing: {
+    type: Boolean,
+    required: true,
+  },
 });
 </script>
 
 <template>
   <div
-    v-if="imageData.url"
+    v-if="isShowing"
     id="toast-notification"
     class="max-w-xs p-4 mx-3 text-base rounded-lg shadow cursor-pointer w-fit bg-base-content text-primary-content"
     role="alert"

@@ -16,6 +16,7 @@ const userInput = ref("");
 const userMessage = ref({});
 const botMessage = ref({});
 const isLoading = ref(false);
+const isPreviewShowing = ref(false);
 const focusInput = ref(null);
 const fileInput = ref(null);
 const chatHistory = store.chatHistory;
@@ -92,8 +93,7 @@ async function sendMessage(event) {
     }, 500);
 
     if (imageData.value.url) {
-      // TODO: Save imageResponse to chat history
-      // TODO: bot remembers previous images on this condition (on imageResponse)
+      isPreviewShowing.value = false;
       imageResponse = await $fetch(`/api/image`, {
         method: "POST",
         body: {
@@ -125,7 +125,7 @@ async function sendMessage(event) {
     await nextTick();
     focusInput.value.focus();
   }
-  console.log("🚀 chat history", store.chatHistory);
+  console.log("🚀 chat history", store.getHistoryOnly);
 }
 
 const triggerFileUpload = () => {
@@ -150,6 +150,7 @@ const handleFileChange = (event) => {
     };
   };
   reader.readAsDataURL(selectedFile);
+  isPreviewShowing.value = true;
 };
 
 const clearImagePreview = () => {
@@ -251,6 +252,7 @@ const clearImagePreview = () => {
           :image-data="imageData"
           :clear-image-preview="clearImagePreview"
           :is-preview="true"
+          :is-showing="isPreviewShowing"
         />
 
         <!-- Chat Input -->
